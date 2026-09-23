@@ -8,7 +8,7 @@ export const WORKER_URL = "/api/proxy";
 // Textos de la app
 export const APP_NAME = "Asistente de Viajes TA";
 export const APP_SUBTITLE = "Planifica tu próxima aventura con torpeza artificial";
-export const APP_FOOTER = "Powered by OpenRouter AI · Los Viajes de Jesús";
+export const APP_FOOTER = "Powered Jesús Arranz Sanz · jesus@gmx.sg";
 
 // Ciudades sugeridas
 export const SUGERENCIAS = ["Madrid", "Segovia", "Ourense", "Boceguillas", "Sepúlveda", "Tokio", "New York", "París"];
