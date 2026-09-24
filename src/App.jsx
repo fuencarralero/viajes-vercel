@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { fetchTravelInfo } from "./api.js";
 import { WORKER_URL, APP_NAME, APP_SUBTITLE, APP_FOOTER, SUGERENCIAS, PAISES_CEE } from "./config.js";
 import { generatePDF } from "./exportPDF.js";
+import CurrencyCalc, { getCurrencyForDestination } from "./CurrencyCalc.jsx";
 
 const TABS_BASE = [
   { id: "alojamiento",   label: "Alojamiento", icon: "🏨" },
@@ -223,6 +224,7 @@ export default function App() {
   const [destination, setDestination]   = useState("");
   const [confirmed, setConfirmed]       = useState("");
   const [fueraCEE, setFueraCEE]         = useState(false);
+  const [currency, setCurrency]         = useState(null);
   const [travelConfig, setTravelConfig] = useState(null);
   const [showConfig, setShowConfig]     = useState(false);
   const [activeTab, setActiveTab]       = useState("alojamiento");
@@ -254,6 +256,9 @@ export default function App() {
     if (fueraCEE) {
       base.splice(base.findIndex(t => t.id === "documentacion"), 0, { id: "esim", label: "eSIM", icon: "📱" });
     }
+    if (currency) {
+      base.push({ id: "cambio", label: "Cambio", icon: "💱" });
+    }
     return base;
   };
 
@@ -284,8 +289,10 @@ export default function App() {
     const d = destination.trim();
     if (!d) return;
     const fuera = esFueraCEE(d);
+    const curr = getCurrencyForDestination(d);
     setConfirmed(d);
     setFueraCEE(fuera);
+    setCurrency(curr);
     setCache({});
     setTravelConfig(null);
     setShowConfig(true);
@@ -430,7 +437,9 @@ export default function App() {
             {/* CONTENIDO */}
             <div style={{ background: "rgba(255,255,255,.82)", backdropFilter: "blur(16px)", borderRadius: 20, padding: "28px 24px", boxShadow: "0 8px 40px rgba(139,94,60,.12)", border: "1px solid rgba(200,160,100,.22)", minHeight: 180 }}>
               {error && <p style={{ color: "#c0392b", lineHeight: 1.6 }}>{error}</p>}
-              {loading && !currentContent ? (
+              {activeTab === "cambio" && currency ? (
+                <CurrencyCalc destination={confirmed} currency={currency} />
+              ) : loading && !currentContent ? (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "36px 0", gap: 10 }}>
                   <span style={{ fontSize: "2.4em" }}>{TABS.find(t => t.id === activeTab)?.icon}</span>
                   <LoadingDots />
