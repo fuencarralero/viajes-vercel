@@ -1,4 +1,4 @@
-const CACHE_NAME = "viajes-ta-v5";
+const CACHE_NAME = "viajes-ta-v6";
 const STATIC_ASSETS = ["/", "/index.html", "/manifest.json"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(STATIC_ASSETS)));
