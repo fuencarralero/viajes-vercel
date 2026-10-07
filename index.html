@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#c17f50" />
+  <meta name="description" content="Planifica tu próximo viaje con torpeza artificial." />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ViajesTA" />
+  <title>Asistente de Viajes TA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body { background: #fdf6ec; font-family: Georgia, serif; -webkit-font-smoothing: antialiased; }
+    #splash { position: fixed; inset: 0; background: #fdf6ec; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 9999; transition: opacity 0.4s; }
+    #splash.hidden { opacity: 0; pointer-events: none; }
+    #splash-icon { font-size: 3em; animation: bob 1.5s ease-in-out infinite; }
+    #splash-text { color: #c17f50; font-size: 1.1em; letter-spacing: 0.08em; }
+    @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  </style>
+</head>
+<body>
+  <div id="splash"><div id="splash-icon">✈️</div><div id="splash-text">Cargando…</div></div>
+  <div id="root"></div>
+  <script>
+    function hideSplash() {
+      const el = document.getElementById("splash");
+      if (el) { el.classList.add("hidden"); setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 400); }
+    }
+    window.__hideSplash = hideSplash;
+    setTimeout(hideSplash, 2000);
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => { navigator.serviceWorker.register("/sw.js").catch(() => {}); });
+    }
+  </script>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
