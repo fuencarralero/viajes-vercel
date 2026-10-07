@@ -3,7 +3,7 @@
  * Variable de entorno necesaria: OPENROUTER_API_KEY
  */
 
-const MODEL = "google/gemini-2.0-flash-exp:free";
+const MODEL = "google/gemini-2.5-flash-preview-05-20:free";
 
 function getPrompt(tab, destination, fechas, origen, transporte, combustible) {
   const d = destination;
