@@ -4,7 +4,7 @@
  * Obtén tu key gratis en: https://aistudio.google.com/app/apikey
  */
 
-const MODEL = "gemini-3.6-flash";
+const MODEL = "gemini-3.5-flash-lite";
 
 function getPrompt(tab, destination, fechas, origen, transporte, combustible) {
   const d = destination;
