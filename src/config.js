@@ -5,7 +5,7 @@
 export const WORKER_URL = "/api/proxy";
 export const APP_NAME = "Asistente de Viajes TA";
 export const APP_SUBTITLE = "Planifica tu próxima aventura con torpeza artificial";
-export const APP_FOOTER = "Powered by Jesús Arranz Sanz · Los Viajes de Jesús";
+export const APP_FOOTER = "© Jesús Arranz Sanz · jesus@gmx.sg";
 export const SUGERENCIAS = ["Madrid", "Segovia", "Ourense", "Boceguillas", "Sepúlveda", "Tokio", "New York", "París"];
 
 export const PAISES_CEE = [
