@@ -4,7 +4,7 @@
  * Obtén tu key gratis en: https://aistudio.google.com/app/apikey
  */
 
-const MODEL = "gemini-3.8-live-extended-thinking";
+const MODEL = "gemini-3.8-live";
 
 function getPrompt(tab, destination, fechas, origen, transporte, combustible) {
   const d = destination;
