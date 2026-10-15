@@ -19,5 +19,6 @@ export const PAISES_CEE = [
   "barcelona","madrid","paris","berlin","roma","amsterdam","bruselas","lisboa",
   "atenas","varsovia","praga","budapest","viena","estocolmo","helsinki","copenhague",
   "dublin","riga","vilnius","tallin","liubliana","bratislava","zagreb","sofia","bucarest",
-  "portimao","porto","sevilla","valencia","bilbao","ourense","segovia","boceguillas","sepulveda"
+  "portimao","porto","sevilla","valencia","bilbao","ourense","segovia","boceguillas","sepulveda",
+  "catania","palermo","napoles","florencia","venezia","venecia","milan","turin","bologna","sicilia","cerdeña","sardegna","sicily","rome","roma"
 ];
