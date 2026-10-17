@@ -266,7 +266,7 @@ export default function App() {
     const d = destination.trim();
     if (!d) return;
     setConfirmed(d);
-    setFueraCEE(esFueraCEE(d));
+    esFueraCEE(d).then(fuera => setFueraCEE(fuera));
     setCurrency(getCurrencyForDestination(d));
     setCache({});
     setTravelConfig(null);
