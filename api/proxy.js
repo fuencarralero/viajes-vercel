@@ -4,7 +4,10 @@
  * Obtén tu key gratis en: https://aistudio.google.com/app/apikey
  */
 
-const MODEL = "gemini-3.5-flash-lite";
+const MODEL_PRIMARY = "gemini-2.5-flash-lite";
+const MODEL_FALLBACK = "gemini-2.0-flash-lite";
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 5000; // 5 segundos entre reintentos
 
 function getPrompt(tab, destination, fechas, origen, transporte, combustible) {
   const d = destination;
