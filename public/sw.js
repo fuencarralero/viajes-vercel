@@ -1,5 +1,5 @@
 // ✏️ Incrementa el número cada vez que despliegues para forzar actualización en móviles
-const CACHE_NAME = "viajes-ta-v7";
+const CACHE_NAME = "viajes-ta-v8";
 const STATIC_ASSETS = ["/", "/index.html", "/manifest.json"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(STATIC_ASSETS)));
@@ -15,5 +15,10 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(fetch(e.request));
     return;
   }
+  //prueba cache//
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.jsx')) {
+  e.respondWith(fetch(e.request));
+  return;
+}
   e.respondWith(caches.match(e.request).then((cached) => cached || fetch(e.request)));
 });
