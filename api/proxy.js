@@ -177,21 +177,43 @@ export default async function handler(req, res) {
     const prompt = getPrompt(tab, destination, fechas, origen, transporte, combustible, fueraCEE);
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
 
-    const response = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
-      }),
-    });
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-      ?? data.error?.message
-      ?? JSON.stringify(data);
+async function callGemini(apiKey, model, prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+    }),
+  });
+  return response.json();
+}
 
-    return res.status(200).json({ text });
+// Intentar con modelo principal con reintentos
+let data;
+let usedModel = MODEL_PRIMARY;
+
+for (let i = 0; i < MAX_RETRIES; i++) {
+  data = await callGemini(apiKey, MODEL_PRIMARY, prompt);
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (text) return res.status(200).json({ text });
+  
+  const errMsg = data.error?.message ?? "";
+  if (errMsg.includes("high demand") || errMsg.includes("overloaded")) {
+    if (i < MAX_RETRIES - 1) await sleep(RETRY_DELAY);
+  } else break;
+}
+
+// Si falla, intentar con modelo de respaldo
+data = await callGemini(apiKey, MODEL_FALLBACK, prompt);
+const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+  ?? data.error?.message
+  ?? "Servicio temporalmente no disponible. Inténtalo de nuevo en unos minutos.";
+
+return res.status(200).json({ text });
   } catch (err) {
     return res.status(500).json({ error: "Error interno", detail: err.message });
   }
