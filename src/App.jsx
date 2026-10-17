@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { fetchTravelInfo } from "./api.js";
-import { WORKER_URL, APP_NAME, APP_SUBTITLE, APP_FOOTER, SUGERENCIAS, PAISES_CEE } from "./config.js";
+import { WORKER_URL, APP_NAME, APP_SUBTITLE, APP_FOOTER, SUGERENCIAS, esFueraCEE } from "./config.js";
 import { generatePDF } from "./exportPDF.js";
 import CurrencyCalc, { getCurrencyForDestination } from "./CurrencyCalc.jsx";
 
@@ -18,10 +18,7 @@ const TABS_BASE = [
 
 const COMBUSTIBLES = ["Gasolina 95", "Gasolina 98", "Diésel", "Diésel premium", "GLP", "Eléctrico", "Híbrido"];
 
-function esFueraCEE(destination) {
-  const d = destination.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return !PAISES_CEE.some(p => d.includes(p.normalize("NFD").replace(/[\u0300-\u036f]/g, "")));
-}
+// esFueraCEE ahora viene de config.js como función async
 
 function formatInline(text) {
   return text
