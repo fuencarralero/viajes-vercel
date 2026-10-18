@@ -4,10 +4,10 @@
  * Obtén tu key gratis en: https://aistudio.google.com/app/apikey
  */
 
-const MODEL_PRIMARY = "gemini-2.5-flash-lite";
-const MODEL_FALLBACK = "gemini-2.0-flash-lite";
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 5000; // 5 segundos entre reintentos
+const MODEL_PRIMARY  = "gemini-2.5-flash-lite";
+const MODEL_FALLBACK = "gemini-2.0-flash";
+const MAX_RETRIES    = 3;
+const RETRY_DELAY    = 5000;
 
 function getPrompt(tab, destination, fechas, origen, transporte, combustible) {
   const d = destination;
@@ -16,7 +16,7 @@ function getPrompt(tab, destination, fechas, origen, transporte, combustible) {
 
   switch (tab) {
     case "alojamiento":
-      return `Eres un experto en viajes. Habla ÚNICAMENTE sobre alojamiento en ${d}${f}. Responde en español con emojis y markdown (##, -, **negrita**). Sé preciso y veraz.
+      return `Eres un experto en viajes. Habla ÚNICAMENTE sobre alojamiento en ${d}${f}. Responde en español con emojis y markdown (##, -, **negrita**). Sé preciso y veraz, no inventes lugares que no existen.
 ## Mejores zonas para alojarse
 ## Tipos de alojamiento y precios
 (hoteles, hostels, apartamentos, casas rurales — rangos de precio por noche)
@@ -159,6 +159,21 @@ NO hables de alojamiento ni gastronomía.`;
   }
 }
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function callGemini(apiKey, model, prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+    }),
+  });
+  return response.json();
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -175,45 +190,26 @@ export default async function handler(req, res) {
     if (!destination || !tab) return res.status(400).json({ error: "Faltan parámetros" });
 
     const prompt = getPrompt(tab, destination, fechas, origen, transporte, combustible, fueraCEE);
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
 
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    // Intentar con modelo principal con reintentos automáticos
+    let data;
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      data = await callGemini(apiKey, MODEL_PRIMARY, prompt);
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return res.status(200).json({ text });
+      const errMsg = data.error?.message ?? "";
+      if (errMsg.includes("high demand") || errMsg.includes("overloaded") || errMsg.includes("quota")) {
+        if (i < MAX_RETRIES - 1) await sleep(RETRY_DELAY);
+      } else break;
+    }
 
-async function callGemini(apiKey, model, prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
-    }),
-  });
-  return response.json();
-}
+    // Modelo de respaldo si el principal falla
+    data = await callGemini(apiKey, MODEL_FALLBACK, prompt);
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+      ?? data.error?.message
+      ?? "Servicio temporalmente no disponible. Inténtalo de nuevo en unos minutos.";
 
-// Intentar con modelo principal con reintentos
-let data;
-let usedModel = MODEL_PRIMARY;
-
-for (let i = 0; i < MAX_RETRIES; i++) {
-  data = await callGemini(apiKey, MODEL_PRIMARY, prompt);
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (text) return res.status(200).json({ text });
-  
-  const errMsg = data.error?.message ?? "";
-  if (errMsg.includes("high demand") || errMsg.includes("overloaded")) {
-    if (i < MAX_RETRIES - 1) await sleep(RETRY_DELAY);
-  } else break;
-}
-
-// Si falla, intentar con modelo de respaldo
-data = await callGemini(apiKey, MODEL_FALLBACK, prompt);
-const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-  ?? data.error?.message
-  ?? "Servicio temporalmente no disponible. Inténtalo de nuevo en unos minutos.";
-
-return res.status(200).json({ text });
+    return res.status(200).json({ text });
   } catch (err) {
     return res.status(500).json({ error: "Error interno", detail: err.message });
   }
