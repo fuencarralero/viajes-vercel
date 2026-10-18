@@ -5,7 +5,7 @@
  */
 
 const MODEL_PRIMARY  = "gemini-2.5-flash-lite";
-const MODEL_FALLBACK = "gemini-2.0-flash";
+const MODEL_FALLBACK = "gemini-3.8-flash";
 const MAX_RETRIES    = 3;
 const RETRY_DELAY    = 5000;
 
