@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#c17f50" />
+  <meta name="description" content="Planifica tu viaje con datos abiertos: alojamiento, rutas, gasolineras, tiempo, mareas y más." />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ViajesTA" />
+  <title>Asistente de Viajes TA</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:#fdf6ec;font-family:Georgia,serif;-webkit-font-smoothing:antialiased}
+    #splash{position:fixed;inset:0;background:#fdf6ec;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:9999;transition:opacity .4s;color:#c17f50;font-size:1.1em}
+    #splash.hidden{opacity:0;pointer-events:none}
+    #splash span{font-size:3em;animation:bob 1.5s ease-in-out infinite}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  </style>
+</head>
+<body>
+  <div id="splash"><span>✈️</span>Cargando…</div>
+  <div id="root"></div>
+  <script>
+    window.__hideSplash = function () {
+      var el = document.getElementById("splash");
+      if (el) { el.classList.add("hidden"); setTimeout(function () { el.remove(); }, 400); }
+    };
+    setTimeout(window.__hideSplash, 2500);
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });
+    }
+  </script>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
